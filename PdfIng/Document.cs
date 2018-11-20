@@ -25,7 +25,7 @@ namespace PdfIng {
             NextPage();
 
             RootSection = section;
-            RootSection.Init(this);
+            RootSection.Init(this, this);
         }
 
         public void NextPage() {
@@ -35,6 +35,10 @@ namespace PdfIng {
 
         public void Render() {
             RootSection.Render();
+        }
+
+        public void SaveAs(string fileName) {
+            pdfDocument.Save(fileName);
         }
 
     }
