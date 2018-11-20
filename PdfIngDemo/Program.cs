@@ -11,30 +11,48 @@ namespace PdfIngDemo {
         static void Main(string[] args) {
             var doc = new Document(new MySec());
             doc.Render();
-            string fileName = "TestOne.pdf";
-            doc.SaveAs(fileName);
-            System.Diagnostics.Process.Start(fileName);
+            doc.SaveAs("TestOne.pdf");
+            doc.Open();
         }
     }
 
     class MySec : Section {
+
+
+        protected override void Header() {
+            FontSize = 32;
+            Margin = .05;
+            WriteLine("Title");
+        }
+
+
         protected override void Body() {
+
+            FontSize = 15;
+            Margin = .1;
+
             WriteLine("Hello World this is a test with lots of testing text haha" +
                  " sounds like texting text, haha its not realy funny i justy need something to talk about");
 
             WriteLine();
 
             WriteLine("This is a new paragraph");
+            LeftMargin = .4;
+            WriteLine("CENTERalMOST");
 
-            HorizontalMargin = .12;
+            LeftMargin = .4;
 
-            string longString = "Hello ";
-            for (int i = 0; i < 10; i++) {
-                longString += longString;
+            TopMargin = BottomMargin = 0;
+
+            for (int i = 0; i < 80; i++) {
+                HorizontalMargin = i / (80f * 3);
+                WriteLine("Test");
             }
+        }
 
-            WriteLine(longString);
-
+        protected override void Footer() {
+            Margin = .1;
+            WriteLine("Footer");
         }
     }
 }

@@ -20,6 +20,8 @@ namespace PdfIng {
         private XGraphics g;
         public XGraphics Xg => g;
 
+        public string FileName { private set; get; }
+
         public Document(Section section) {
             pdfDocument = new PdfDocument();
             NextPage();
@@ -38,7 +40,12 @@ namespace PdfIng {
         }
 
         public void SaveAs(string fileName) {
+            FileName = fileName;
             pdfDocument.Save(fileName);
+        }
+
+        public void Open() {
+            System.Diagnostics.Process.Start(FileName);
         }
 
     }

@@ -17,8 +17,8 @@ namespace PdfIng {
 
     public abstract class Section : IHasGraphics {
 
-        private Document Doc;
-        private IHasGraphics parent;
+        protected Document Doc;
+        protected IHasGraphics parent;
         public XGraphics Xg => Doc.Xg;
 
         protected double PageWidth => Doc.CurrentPage.Width;
@@ -66,7 +66,8 @@ namespace PdfIng {
         }
 
 
-        protected XFont Font = new XFont("Verdana", 11, XFontStyle.Regular);
+        protected double FontSize = 11;
+        protected XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
 
 
         private double lm, rm, tm, bm;
