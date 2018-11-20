@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PdfIng
-{
-    public class Class1
-    {
+using PdfSharp.Drawing;
+
+namespace PdfIng {
+    public interface IHasGraphics {
+        XGraphics Xg { get; }
     }
 }
