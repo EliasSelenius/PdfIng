@@ -21,15 +21,13 @@ namespace PdfIngDemo {
 
         protected override void Header() {
             FontSize = 32;
-            Margin = .05;
             WriteLine("Title");
         }
 
 
         protected override void Body() {
 
-            FontSize = 15;
-            Margin = .1;
+            FontSize = 11;
 
             WriteLine("Hello World this is a test with lots of testing text haha" +
                  " sounds like texting text, haha its not realy funny i justy need something to talk about");
@@ -44,14 +42,20 @@ namespace PdfIngDemo {
 
             TopMargin = BottomMargin = 0;
 
+            RightMargin = 0;
             for (int i = 0; i < 80; i++) {
-                HorizontalMargin = i / (80f * 3);
+                LeftMargin = i / (90f);
                 WriteLine("Test");
             }
+
+            Margin = .4;
+            BottomMargin = 0;
+            Image("img.png");
         }
 
         protected override void Footer() {
             Margin = .1;
+            BottomMargin = 0;
             WriteLine("Footer");
         }
     }

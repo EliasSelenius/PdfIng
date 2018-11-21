@@ -8,13 +8,6 @@ using PdfSharp.Drawing;
 
 namespace PdfIng {
 
-    public enum TextAlign {
-        Left,
-        Center,
-        Right
-    }
-
-
     public abstract class Section : IHasGraphics {
 
         protected Document Doc;
@@ -27,8 +20,14 @@ namespace PdfIng {
         internal void Init(Document d, IHasGraphics p) {
             Doc = d; parent = p;
 
-            Margin = .1;
+            Default();
             cursor = new Cursor(this);
+        }
+
+        protected void Default() {
+            Margin = .1;
+
+            FontSize = 11;
         }
 
         public void Render() {
@@ -57,16 +56,22 @@ namespace PdfIng {
                 y += sec.Font.Size;
                 ValidatePos();
             }
+            public void MoveToNextPage() {
+                sec.Doc.NextPage();
+                ResetPos();
+            }
             private void ValidatePos() {
-                if (y > sec.PageHeight - sec.bm) {
-                    sec.Doc.NextPage();
-                    ResetPos();
+                if (SholdPageBreak(y)) {
+                    MoveToNextPage();
                 }
+            }
+            public bool SholdPageBreak(double vPos) {
+                return vPos > sec.PageHeight - sec.bm;
             }
         }
 
 
-        protected double FontSize = 11;
+        protected double FontSize;
         protected XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
 
 
@@ -108,14 +113,17 @@ namespace PdfIng {
             }
         }
 
-        protected double MaxTextLineWidth => Doc.CurrentPage.Width.Value - lm - rm;
+        protected double DrawWidth => PageWidth - lm - rm;
+
+        private void PrepareCursorForDrawing() {
+            cursor.x = lm;
+        }
 
         protected void WriteLine(string text = "") {
 
+            PrepareCursorForDrawing();
+
             string[] words = text.Split(' ');
-
-            cursor.x = lm;
-
             string line = "";
             int index = 0;
 
@@ -126,8 +134,8 @@ namespace PdfIng {
             }
 
             while (index < words.Length) {
-                if (Xg.MeasureString(line, Font).Width + Xg.MeasureString(words[index], Font).Width < MaxTextLineWidth) {
-                    line += " " + words[index];
+                if (Xg.MeasureString(line, Font).Width + Xg.MeasureString(words[index], Font).Width < DrawWidth) {
+                    line += words[index] + " ";
                     index++;
                 } else {
                     Draw();
@@ -135,7 +143,28 @@ namespace PdfIng {
             }
             Draw();
         }
+        protected void Image(string path) {
+            PrepareCursorForDrawing();
 
+            XImage image = XImage.FromFile(path);
+
+            Console.WriteLine(image.PixelWidth);
+            Console.WriteLine(image.PixelHeight);
+            double aspect = image.PixelWidth / (double)image.PixelHeight;
+            Console.WriteLine(aspect);
+
+            double h = DrawWidth / aspect;
+            Console.WriteLine(DrawWidth);
+            Console.WriteLine(h);
+            Console.Read();
+            if (cursor.SholdPageBreak(cursor.y + h)) {
+                cursor.MoveToNextPage();
+            }
+
+            Xg.DrawImage(image, cursor.x, cursor.y, DrawWidth, h);
+            cursor.y += h;
+            cursor.MoveToNextLine();
+        }
         protected void SubSection(Section section) {
             section.Init(Doc, this);
             section.Render();
