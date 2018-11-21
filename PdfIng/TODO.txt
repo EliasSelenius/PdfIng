@@ -1,0 +1,15 @@
+﻿
+
+PdfIng TODO:
+
+	- Right now all rendering is done by the Section class, it should however not be directly responible for 
+	  rendering "RenderObjects" like (Text, images, shapes) because:
+		* there seems to be a more function based approach rather than object oriented, which gives little flexebility
+		* what happens when the position of rendering is relative to something that will be rendered later, how do you move what
+		  alredy has been rendered? a real example of this: everything that is rendered in the footer needs to collaps all the way down to the
+		  bottom of the page, so how do we do that?
+	  we need to use objects, that can store the necessary rendering data, and not render the Section before all RenderObjects are known
+	  Needs to be done:
+		* Design class architecture for RenderObjects
+		* A Section shuold ba a RenderObject
+	  
