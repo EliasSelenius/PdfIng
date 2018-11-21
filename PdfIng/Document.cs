@@ -9,16 +9,20 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
 namespace PdfIng {
-    public class Document : IHasGraphics {
+    public class Document {
 
         public Section RootSection;
 
         private PdfDocument pdfDocument;
+        public int PageCount => pdfDocument.PageCount;
 
-        public PdfPage CurrentPage; 
+        public PdfPage CurrentPage;
+        public double PageWidth => CurrentPage.Width;
+        public double PageHeight => CurrentPage.Height;
+        public int PageIndex = 0;
+        public int PageNumber => PageIndex + 1;
 
-        private XGraphics g;
-        public XGraphics Xg => g;
+        public XGraphics Xg { private set; get; }
 
         public string FileName { private set; get; }
 
@@ -27,12 +31,13 @@ namespace PdfIng {
             NextPage();
 
             RootSection = section;
-            RootSection.Init(this, this);
+            RootSection.Init(this);
         }
 
         public void NextPage() {
+            PageIndex++;
             CurrentPage = pdfDocument.AddPage();
-            g = XGraphics.FromPdfPage(CurrentPage);
+            Xg = XGraphics.FromPdfPage(CurrentPage);
         }
 
         public void Render() {

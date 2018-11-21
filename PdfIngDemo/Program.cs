@@ -50,6 +50,7 @@ namespace PdfIngDemo {
 
             Margin = .4;
             BottomMargin = 0;
+            RightMargin = 0;
             Image("img.png");
         }
 

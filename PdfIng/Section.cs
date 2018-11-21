@@ -6,19 +6,22 @@ using System.Threading.Tasks;
 
 using PdfSharp.Drawing;
 
+using PdfIng.Rendering;
+
 namespace PdfIng {
 
-    public abstract class Section : IHasGraphics {
+    public abstract class Section {
 
-        protected Document Doc;
-        protected IHasGraphics parent;
-        public XGraphics Xg => Doc.Xg;
+        protected Document document;
+        public XGraphics Xg => document.Xg;
 
-        protected double PageWidth => Doc.CurrentPage.Width;
-        protected double PageHeight => Doc.CurrentPage.Height;
+        protected double PageWidth => document.PageWidth;
+        protected double PageHeight => document.PageHeight;
 
-        internal void Init(Document d, IHasGraphics p) {
-            Doc = d; parent = p;
+        private RenderObjectList renderObjects;
+
+        internal void Init(Document d) {
+            document = d;
 
             Default();
             cursor = new Cursor(this);
@@ -31,17 +34,23 @@ namespace PdfIng {
         }
 
         public void Render() {
+
+            renderObjects = new RenderObjectList();
             Header();
             Body();
+            renderObjects.RenderAll(this);
+
+            renderObjects = new RenderObjectList();
             Footer();
+            renderObjects.RenderAll(this);
         }
 
         protected virtual void Header() { }
         protected virtual void Body() { }
         protected virtual void Footer() { }
 
-        protected Cursor cursor;
-        protected class Cursor {
+        public Cursor cursor;
+        public class Cursor {
             private Section sec;
             public Cursor(Section s) {
                 sec = s;
@@ -50,14 +59,17 @@ namespace PdfIng {
             public double x;
             public double y;
             public void ResetPos() {
-                y = sec.tm + sec.Font.Size;
+                y = sec.tm;
             }
-            public void MoveToNextLine() {
-                y += sec.Font.Size;
+            public void Move(double xdelta, double ydelta) {
+                x += xdelta; y += ydelta;
                 ValidatePos();
             }
+            public void MoveDown(double ydelta) {
+                Move(0, ydelta);
+            }
             public void MoveToNextPage() {
-                sec.Doc.NextPage();
+                sec.document.NextPage();
                 ResetPos();
             }
             private void ValidatePos() {
@@ -68,11 +80,14 @@ namespace PdfIng {
             public bool SholdPageBreak(double vPos) {
                 return vPos > sec.PageHeight - sec.bm;
             }
+            public void PrepareForDrawing() {
+                x = sec.lm;
+            }
         }
 
 
         protected double FontSize;
-        protected XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
+        public XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
 
 
         private double lm, rm, tm, bm;
@@ -113,24 +128,20 @@ namespace PdfIng {
             }
         }
 
-        protected double DrawWidth => PageWidth - lm - rm;
-
-        private void PrepareCursorForDrawing() {
-            cursor.x = lm;
-        }
+        public double DrawWidth => PageWidth - lm - rm;
 
         protected void WriteLine(string text = "") {
 
-            PrepareCursorForDrawing();
+            cursor.PrepareForDrawing();
 
             string[] words = text.Split(' ');
             string line = "";
             int index = 0;
 
             void Draw() {
-                Xg.DrawString(line, Font, XBrushes.Black, cursor.x, cursor.y);
+                Xg.DrawString(line, Font, XBrushes.Black, cursor.x, cursor.y + FontSize);
                 line = "";
-                cursor.MoveToNextLine();
+                cursor.MoveDown(FontSize);
             }
 
             while (index < words.Length) {
@@ -144,29 +155,22 @@ namespace PdfIng {
             Draw();
         }
         protected void Image(string path) {
-            PrepareCursorForDrawing();
+            cursor.PrepareForDrawing();
 
             XImage image = XImage.FromFile(path);
-
-            Console.WriteLine(image.PixelWidth);
-            Console.WriteLine(image.PixelHeight);
             double aspect = image.PixelWidth / (double)image.PixelHeight;
-            Console.WriteLine(aspect);
 
             double h = DrawWidth / aspect;
-            Console.WriteLine(DrawWidth);
-            Console.WriteLine(h);
-            Console.Read();
             if (cursor.SholdPageBreak(cursor.y + h)) {
                 cursor.MoveToNextPage();
             }
 
             Xg.DrawImage(image, cursor.x, cursor.y, DrawWidth, h);
             cursor.y += h;
-            cursor.MoveToNextLine();
+            cursor.MoveDown(FontSize);
         }
         protected void SubSection(Section section) {
-            section.Init(Doc, this);
+            section.Init(document);
             section.Render();
         }
     }

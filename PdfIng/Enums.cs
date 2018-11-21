@@ -10,4 +10,10 @@ namespace PdfIng {
         Center,
         Right
     }
+
+    public enum Collapse {
+        Top,
+        Center,
+        Bottom
+    }
 }
