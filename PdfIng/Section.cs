@@ -24,7 +24,6 @@ namespace PdfIng {
             document = d;
 
             Default();
-            cursor = new Cursor(this);
         }
 
         protected void Default() {
@@ -34,56 +33,16 @@ namespace PdfIng {
         }
 
         public void Render() {
-
-            renderObjects = new RenderObjectList();
             Header();
             Body();
-            renderObjects.RenderAll(this);
-
-            renderObjects = new RenderObjectList();
             Footer();
-            renderObjects.RenderAll(this);
         }
 
         protected virtual void Header() { }
         protected virtual void Body() { }
         protected virtual void Footer() { }
 
-        public Cursor cursor;
-        public class Cursor {
-            private Section sec;
-            public Cursor(Section s) {
-                sec = s;
-                ResetPos();
-            }
-            public double x;
-            public double y;
-            public void ResetPos() {
-                y = sec.tm;
-            }
-            public void Move(double xdelta, double ydelta) {
-                x += xdelta; y += ydelta;
-                ValidatePos();
-            }
-            public void MoveDown(double ydelta) {
-                Move(0, ydelta);
-            }
-            public void MoveToNextPage() {
-                sec.document.NextPage();
-                ResetPos();
-            }
-            private void ValidatePos() {
-                if (SholdPageBreak(y)) {
-                    MoveToNextPage();
-                }
-            }
-            public bool SholdPageBreak(double vPos) {
-                return vPos > sec.PageHeight - sec.bm;
-            }
-            public void PrepareForDrawing() {
-                x = sec.lm;
-            }
-        }
+        
 
 
         protected double FontSize;
@@ -130,6 +89,7 @@ namespace PdfIng {
 
         public double DrawWidth => PageWidth - lm - rm;
 
+        /*
         protected void WriteLine(string text = "") {
 
             cursor.PrepareForDrawing();
@@ -154,6 +114,7 @@ namespace PdfIng {
             }
             Draw();
         }
+        
         protected void Image(string path) {
             cursor.PrepareForDrawing();
 
@@ -173,5 +134,6 @@ namespace PdfIng {
             section.Init(document);
             section.Render();
         }
+        */
     }
 }

@@ -8,10 +8,12 @@ using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
+using PdfIng.Rendering;
+
 namespace PdfIng {
     public class Document {
 
-        public Section RootSection;
+        private RenderObjectList renderObjects = new RenderObjectList();
 
         private PdfDocument pdfDocument;
         public int PageCount => pdfDocument.PageCount;
@@ -26,12 +28,13 @@ namespace PdfIng {
 
         public string FileName { private set; get; }
 
-        public Document(Section section) {
+        public Document(params RenderObject[] rs) {
             pdfDocument = new PdfDocument();
             NextPage();
 
-            RootSection = section;
-            RootSection.Init(this);
+            cursor = new Cursor(this);
+
+            renderObjects.AddRange(rs);
         }
 
         public void NextPage() {
@@ -40,8 +43,47 @@ namespace PdfIng {
             Xg = XGraphics.FromPdfPage(CurrentPage);
         }
 
+        public Cursor cursor;
+        public class Cursor {
+            private Document doc;
+            public Cursor(Document d) {
+                doc = d;
+                ResetPos();
+            }
+            public double x;
+            public double y;
+            public void ResetPos() {
+                //y = sec.tm;
+            }
+            public void MoveTo(double newX, double newY) {
+                x = newX; y = newY;
+                ValidatePos();
+            }
+            public void Move(double xdelta, double ydelta) {
+                MoveTo(x + xdelta, y + ydelta);
+            }
+            public void MoveVertical(double ydelta) {
+                Move(0, ydelta);
+            }
+            public void MoveToNextPage() {
+                doc.NextPage();
+                ResetPos();
+            }
+            private void ValidatePos() {
+                if (SholdPageBreak(y)) {
+                    MoveToNextPage();
+                }
+            }
+            public bool SholdPageBreak(double vPos) {
+                return vPos > doc.PageHeight;
+            }
+            public void PrepareForDrawing() {
+                //x = sec.lm;
+            }
+        }
+
         public void Render() {
-            RootSection.Render();
+            renderObjects.RenderAll(this);
         }
 
         public void SaveAs(string fileName) {

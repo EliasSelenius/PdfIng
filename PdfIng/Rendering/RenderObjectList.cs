@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace PdfIng.Rendering {
     public class RenderObjectList : List<RenderObject> {
-        public void RenderAll(Section sec) {
-            ForEach(x => x.Bind(sec));
+        public void RenderAll(Document doc) {
+            ForEach(x => x.Bind(doc));
             ForEach(x => x.Render());
         }
 

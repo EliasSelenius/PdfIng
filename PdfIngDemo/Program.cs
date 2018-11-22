@@ -5,17 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 using PdfIng;
+using PdfIng.Rendering;
 
 namespace PdfIngDemo {
     class Program {
         static void Main(string[] args) {
-            var doc = new Document(new MySec());
+            var doc = new Document(new TextArea("Hello World this is a test with lots of testing text haha" +
+                 " sounds like texting text, haha its not realy funny i justy need something to talk about"), new TextArea("Hello World") { y = 22, FontSize = 30});
             doc.Render();
             doc.SaveAs("TestOne.pdf");
             doc.Open();
         }
     }
 
+    /*
     class MySec : Section {
 
 
@@ -60,4 +63,6 @@ namespace PdfIngDemo {
             WriteLine("Footer");
         }
     }
+
+    */
 }

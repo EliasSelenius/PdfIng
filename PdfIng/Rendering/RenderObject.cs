@@ -4,20 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using PdfSharp.Drawing;
 
 
 namespace PdfIng.Rendering {
     public abstract class RenderObject {
-        protected Section sec;
+        protected Document doc;
+        protected XGraphics Xg => doc.Xg;
+        protected Document.Cursor Cursor => doc.cursor;
 
         public double x, y, Width, Height;
 
         private void Init() {
-            Width = sec.DrawWidth;
+            Width = doc.PageWidth;
         }
 
-        public void Bind(Section s) {
-            sec = s;
+        public void Bind(Document d) {
+            doc = d;
             Init();
         }
 
