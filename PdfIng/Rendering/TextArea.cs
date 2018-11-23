@@ -25,7 +25,7 @@ namespace PdfIng.Rendering {
             string line = "";
             int index = 0;
 
-            Cursor.MoveTo(x, y);
+            Cursor.MoveTo(X, Y);
 
             void Draw() {
                 Xg.DrawString(line, Font, XBrushes.Black, Cursor.x, Cursor.y + FontSize);

@@ -13,10 +13,31 @@ namespace PdfIng.Rendering {
         protected XGraphics Xg => doc.Xg;
         protected Document.Cursor Cursor => doc.cursor;
 
-        public double x, y, Width, Height;
+        protected double? x, y, width, height;
+
+        public double X {
+            get => (x == null) ? 0 : (double)x;
+            set => x = value;
+        }
+        public double Y {
+            get => (y == null) ? 0 : (double)y;
+            set => y = value;
+        }
+        public double Width {
+            get => (width == null)? 0 : (double)width;
+            set => width = value;
+        }
+        public double Height {
+            get => (height == null) ? 0 : (double)height;
+            set => height = value;
+        }
 
         private void Init() {
-            Width = doc.PageWidth;
+
+            if (width == null) {
+                width = doc.PageWidth;
+            }
+
         }
 
         public void Bind(Document d) {

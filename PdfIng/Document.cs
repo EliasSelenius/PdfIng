@@ -34,6 +34,10 @@ namespace PdfIng {
 
             cursor = new Cursor(this);
 
+            Append(rs);
+        }
+
+        public void Append(params RenderObject[] rs) {
             renderObjects.AddRange(rs);
         }
 
@@ -53,7 +57,7 @@ namespace PdfIng {
             public double x;
             public double y;
             public void ResetPos() {
-                //y = sec.tm;
+                y = 0;
             }
             public void MoveTo(double newX, double newY) {
                 x = newX; y = newY;
