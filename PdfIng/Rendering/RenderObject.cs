@@ -13,7 +13,9 @@ namespace PdfIng.Rendering {
         protected XGraphics Xg => doc.Xg;
         protected Document.Cursor Cursor => doc.cursor;
 
-        protected double? x, y, width, height;
+        protected double? x, y, width;
+
+        public abstract double Height { get; set; }
 
         public double X {
             get => (x == null) ? 0 : (double)x;
@@ -27,28 +29,25 @@ namespace PdfIng.Rendering {
             get => (width == null)? 0 : (double)width;
             set => width = value;
         }
-        public double Height {
-            get => (height == null) ? 0 : (double)height;
-            set => height = value;
-        }
 
-        private void Init() {
 
+        private void _init() {
             if (width == null) {
                 width = doc.PageWidth;
             }
-
+            Init();
         }
 
         public void Bind(Document d) {
             doc = d;
-            Init();
+            _init();
         }
 
         public void Render() {
             Draw();
         }
 
+        protected virtual void Init() { }
         protected abstract void Draw();
     }
 }

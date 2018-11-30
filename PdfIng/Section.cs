@@ -10,19 +10,14 @@ using PdfIng.Rendering;
 
 namespace PdfIng {
 
-    public abstract class Section {
+    public abstract class Section : RenderObject {
 
-        protected Document document;
-        public XGraphics Xg => document.Xg;
+        protected RenderObjectList renderObjects;
 
-        protected double PageWidth => document.PageWidth;
-        protected double PageHeight => document.PageHeight;
+        protected double PageWidth => doc.PageWidth;
+        protected double PageHeight => doc.PageHeight;
 
-        private RenderObjectList renderObjects;
-
-        internal void Init(Document d) {
-            document = d;
-
+        protected override void Init() { 
             Default();
         }
 
@@ -32,18 +27,31 @@ namespace PdfIng {
             FontSize = 11;
         }
 
-        public void Render() {
+        protected override void Draw() {
+
+
+            renderObjects = new RenderObjectList();
+
             Header();
+
+
             Body();
+
+
             Footer();
+
+            renderObjects.RenderAll(doc);
         }
 
         protected virtual void Header() { }
         protected virtual void Body() { }
         protected virtual void Footer() { }
 
-        
 
+        public override double Height {
+            get => renderObjects.Height;
+            set => throw new NotImplementedException();
+        }
 
         protected double FontSize;
         public XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
@@ -55,20 +63,32 @@ namespace PdfIng {
             set {
                 lm = PageWidth * value;
             }
+            get {
+                return lm;
+            }
         }
         protected double RightMargin {
             set {
                 rm = PageWidth * value;
+            }
+            get {
+                return rm;
             }
         }
         protected double TopMargin {
             set {
                 tm = PageWidth * value;
             }
+            get {
+                return tm;
+            }
         }
         protected double BottomMargin {
             set {
                 bm = PageWidth * value;
+            }
+            get {
+                return bm;
             }
         }
         protected double Margin {
@@ -89,32 +109,24 @@ namespace PdfIng {
 
         public double DrawWidth => PageWidth - lm - rm;
 
-        /*
-        protected void WriteLine(string text = "") {
+        private double verticalPos;
+        
+        protected TextArea WriteLine(string text = "") {
 
-            cursor.PrepareForDrawing();
+            TextArea textArea = new TextArea(text) {
+                X = LeftMargin,
+                Y = verticalPos,
+                Width = DrawWidth,
+                FontSize = FontSize
+            };
 
-            string[] words = text.Split(' ');
-            string line = "";
-            int index = 0;
+            renderObjects.Add(textArea, doc);
 
-            void Draw() {
-                Xg.DrawString(line, Font, XBrushes.Black, cursor.x, cursor.y + FontSize);
-                line = "";
-                cursor.MoveDown(FontSize);
-            }
-
-            while (index < words.Length) {
-                if (Xg.MeasureString(line, Font).Width + Xg.MeasureString(words[index], Font).Width < DrawWidth) {
-                    line += words[index] + " ";
-                    index++;
-                } else {
-                    Draw();
-                }
-            }
-            Draw();
+            verticalPos += textArea.Height;
+            return textArea;
         }
         
+        /*
         protected void Image(string path) {
             cursor.PrepareForDrawing();
 

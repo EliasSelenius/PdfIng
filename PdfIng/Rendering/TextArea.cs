@@ -14,6 +14,14 @@ namespace PdfIng.Rendering {
 
         private XFont Font => new XFont("Verdana", FontSize, XFontStyle.Regular);
 
+        public override double Height {
+            get {
+                double span = Xg.MeasureString(text, Font).Width / Width;
+                return Math.Ceiling(span) * FontSize;
+            }
+            set => throw new NotImplementedException();
+        }
+
         public TextArea(string t) {
             text = t;
         }
@@ -27,7 +35,7 @@ namespace PdfIng.Rendering {
 
             Cursor.MoveTo(X, Y);
 
-            void Draw() {
+            void _Draw() {
                 Xg.DrawString(line, Font, XBrushes.Black, Cursor.x, Cursor.y + FontSize);
                 line = "";
                 doc.cursor.MoveVertical(FontSize);
@@ -38,10 +46,10 @@ namespace PdfIng.Rendering {
                     line += words[index] + " ";
                     index++;
                 } else {
-                    Draw();
+                    _Draw();
                 }
             }
-            Draw();
+            _Draw();
         }
     }
 }
